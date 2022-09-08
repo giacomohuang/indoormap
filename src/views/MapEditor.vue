@@ -39,7 +39,7 @@ import { SVG } from '@svgdotjs/svg.js'
 import mouse from '../js/mouse'
 import keyboard from '../js/keyboard'
 import { nanoid } from 'nanoid'
-import { getAngle, getAngle2 } from '../js/compute.js'
+import { transformOn } from '@vue/compiler-core'
 
 let canvas
 let workarea
@@ -143,6 +143,15 @@ onMounted(() => {
     .fill('red')
     .attr({ stroke: '#000', 'stroke-width': '1', 'vector-effect': 'non-scaling-stroke' })
   //---------------
+  canvas
+    .polyline([
+      [0, 0],
+      [100, 50],
+      [50, 100],
+    ])
+    .id('editable_' + nanoid())
+    .x(120)
+    .y(200)
 
   workarea.on(
     'click',
@@ -156,7 +165,7 @@ onMounted(() => {
       console.log('workarea_click:', ev.target.id)
 
       // if click in blank area and no element is selected, remove the control point layer
-      if (ev.target.id == 'bgrect' && selectedId) {
+      if (ev.target.id == 'bgrect' && selectedId.value) {
         console.log('canvas_mouseup')
         SVG('#control_group_' + selectedId.value).remove()
         selectedId.value = ''
@@ -195,7 +204,7 @@ onMounted(() => {
     function mouseUp() {
       ev.preventDefault()
       ev.stopPropagation()
-      console.log('mouseUp:', ev.target.id)
+      console.log('mouse up:', ev.target.id)
       // triggered by editable element
       if (selectedId.value) {
         SVG('#control_group_' + selectedId.value).remove()
@@ -242,7 +251,7 @@ function startDraw(elType) {
     switch (elType) {
       case 'polygon':
         if (workMode == 'startdraw') {
-          console.log('startdrawaaaaa')
+          console.log('startdraw')
           plots = []
           if (!drawingEl) return
           drawingEl = canvas
@@ -295,7 +304,6 @@ function addControl(el) {
     nw: { x: bound.x, y: bound.y },
   }
   const size = (100 / zoom.value) * POINT_SIZE
-
   Object.entries(gripPoints).forEach(([direction, coords]) => {
     gripPointGroup
       .circle(size, size)
@@ -400,12 +408,10 @@ function updateGripPoints(editableId) {
     w: { x: bound.x, y: bound.y + bound.h / 2 },
     nw: { x: bound.x, y: bound.y },
   }
-
   Object.entries(gripPoints).forEach(([, coords], index) => {
     const size = (100 / zoom.value) * POINT_SIZE
     gp[index].size(size).cx(coords.x).cy(coords.y)
   })
-  // gp.transform(SVG('editable_' + editableId).transform())
 }
 
 function getMouseSvgCoords(svgEl) {
