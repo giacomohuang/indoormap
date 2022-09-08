@@ -39,7 +39,6 @@ import { SVG } from '@svgdotjs/svg.js'
 import mouse from '../js/mouse'
 import keyboard from '../js/keyboard'
 import { nanoid } from 'nanoid'
-import { transformOn } from '@vue/compiler-core'
 
 let canvas
 let workarea
@@ -145,13 +144,13 @@ onMounted(() => {
   //---------------
   canvas
     .polyline([
-      [0, 0],
+      [100, 100],
       [100, 50],
       [50, 100],
     ])
     .id('editable_' + nanoid())
     .x(120)
-    .y(200)
+    .y(100)
 
   workarea.on(
     'click',
